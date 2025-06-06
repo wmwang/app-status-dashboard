@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Activity, CheckCircle, Clock, XCircle, Server, User, Hash, Calendar, Zap, TrendingUp, AlertTriangle } from "lucide-react";
+import { Search, Activity, CheckCircle, Clock, XCircle, Server, User, Hash, Calendar, Zap, TrendingUp, AlertTriangle, Filter, RefreshCw } from "lucide-react";
 
 interface DeploymentTask {
   taskId: string;
@@ -60,8 +61,15 @@ export default function DeploymentStatus() {
   const [searchParams] = useSearchParams();
   const [appId, setAppId] = useState(searchParams.get('appId') || "");
   const [deploymentData, setDeploymentData] = useState<DeploymentTask[]>([]);
+  const [filteredData, setFilteredData] = useState<DeploymentTask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [actionFilter, setActionFilter] = useState<string>("all");
+  const [hostnameFilter, setHostnameFilter] = useState<string>("");
+  
   const { toast } = useToast();
 
   useEffect(() => {
@@ -71,6 +79,27 @@ export default function DeploymentStatus() {
       handleSearch(urlAppId);
     }
   }, [searchParams]);
+
+  // Apply filters whenever data or filter states change
+  useEffect(() => {
+    let filtered = [...deploymentData];
+
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(task => task.taskStatus === statusFilter);
+    }
+
+    if (actionFilter !== "all") {
+      filtered = filtered.filter(task => task.action === actionFilter);
+    }
+
+    if (hostnameFilter.trim()) {
+      filtered = filtered.filter(task => 
+        task.hostname.toLowerCase().includes(hostnameFilter.toLowerCase())
+      );
+    }
+
+    setFilteredData(filtered);
+  }, [deploymentData, statusFilter, actionFilter, hostnameFilter]);
 
   const handleSearch = async (searchAppId?: string) => {
     const queryAppId = searchAppId || appId;
@@ -106,6 +135,12 @@ export default function DeploymentStatus() {
         });
       }
     }, 1000);
+  };
+
+  const handleClearFilters = () => {
+    setStatusFilter("all");
+    setActionFilter("all");
+    setHostnameFilter("");
   };
 
   const getStatusBadge = (status: string) => {
@@ -154,9 +189,9 @@ export default function DeploymentStatus() {
     }
   };
 
-  const successCount = deploymentData.filter(task => task.taskStatus === "SUCCEED").length;
-  const runningCount = deploymentData.filter(task => task.taskStatus === "RUNNING").length;
-  const failedCount = deploymentData.filter(task => task.taskStatus === "FAILED").length;
+  const successCount = filteredData.filter(task => task.taskStatus === "SUCCEED").length;
+  const runningCount = filteredData.filter(task => task.taskStatus === "RUNNING").length;
+  const failedCount = filteredData.filter(task => task.taskStatus === "FAILED").length;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -206,8 +241,95 @@ export default function DeploymentStatus() {
         </CardContent>
       </Card>
 
-      {/* 統計數據 */}
+      {/* 篩選器區域 */}
       {hasSearched && deploymentData.length > 0 && (
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 shadow-md">
+          <CardHeader className="border-b border-purple-100 pb-4">
+            <CardTitle className="text-purple-900 flex items-center space-x-3">
+              <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                <Filter className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <span className="text-lg">篩選條件</span>
+                <p className="text-sm text-purple-600 font-normal mt-1">根據狀態、動作和主機名稱篩選記錄</p>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-purple-700 flex items-center space-x-1">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>狀態</span>
+                </label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="bg-white border-purple-300 focus:border-purple-500">
+                    <SelectValue placeholder="選擇狀態" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部狀態</SelectItem>
+                    <SelectItem value="SUCCEED">成功</SelectItem>
+                    <SelectItem value="RUNNING">執行中</SelectItem>
+                    <SelectItem value="FAILED">失敗</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-purple-700 flex items-center space-x-1">
+                  <Zap className="w-4 h-4" />
+                  <span>動作</span>
+                </label>
+                <Select value={actionFilter} onValueChange={setActionFilter}>
+                  <SelectTrigger className="bg-white border-purple-300 focus:border-purple-500">
+                    <SelectValue placeholder="選擇動作" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">全部動作</SelectItem>
+                    <SelectItem value="install">安裝</SelectItem>
+                    <SelectItem value="update">更新</SelectItem>
+                    <SelectItem value="uninstall">卸載</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-purple-700 flex items-center space-x-1">
+                  <Server className="w-4 h-4" />
+                  <span>主機名稱</span>
+                </label>
+                <Input
+                  placeholder="搜尋主機名稱"
+                  value={hostnameFilter}
+                  onChange={(e) => setHostnameFilter(e.target.value)}
+                  className="bg-white border-purple-300 focus:border-purple-500 focus:ring-purple-500"
+                />
+              </div>
+
+              <div className="space-y-2 flex flex-col justify-end">
+                <Button
+                  onClick={handleClearFilters}
+                  variant="outline"
+                  className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  清除篩選
+                </Button>
+              </div>
+            </div>
+            
+            {/* 篩選結果摘要 */}
+            <div className="mt-4 pt-4 border-t border-purple-200">
+              <p className="text-sm text-purple-600">
+                顯示 <span className="font-semibold text-purple-800">{filteredData.length}</span> / {deploymentData.length} 條記錄
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 統計數據 */}
+      {hasSearched && filteredData.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 hover:shadow-lg transition-all duration-200">
             <CardContent className="p-6">
@@ -215,8 +337,8 @@ export default function DeploymentStatus() {
                 <div className="w-12 h-12 bg-gray-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
                   <TrendingUp className="w-6 h-6 text-white" />
                 </div>
-                <div className="text-3xl font-bold text-gray-800">{deploymentData.length}</div>
-                <div className="text-sm text-gray-600">總任務數</div>
+                <div className="text-3xl font-bold text-gray-800">{filteredData.length}</div>
+                <div className="text-sm text-gray-600">篩選後任務數</div>
               </div>
             </CardContent>
           </Card>
@@ -266,14 +388,14 @@ export default function DeploymentStatus() {
             <CardTitle className="text-gray-900 flex items-center space-x-2">
               <Activity className="w-5 h-5 text-indigo-600" />
               <span>
-                {deploymentData.length > 0 ? `軟體 "${appId}" 的派送記錄` : "查詢結果"}
+                {filteredData.length > 0 ? `軟體 "${appId}" 的派送記錄` : "查詢結果"}
               </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            {deploymentData.length > 0 ? (
+            {filteredData.length > 0 ? (
               <div className="space-y-4">
-                {deploymentData.map((task, index) => (
+                {filteredData.map((task, index) => (
                   <Card key={task.taskId} className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all duration-200">
                     <CardContent className="p-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -327,6 +449,14 @@ export default function DeploymentStatus() {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            ) : deploymentData.length > 0 ? (
+              <div className="text-center py-12">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Filter className="w-10 h-10 text-purple-400" />
+                </div>
+                <p className="text-gray-500 text-lg font-medium mb-2">沒有符合篩選條件的記錄</p>
+                <p className="text-sm text-gray-400">請調整篩選條件或清除篩選來查看更多記錄</p>
               </div>
             ) : (
               <div className="text-center py-12">
