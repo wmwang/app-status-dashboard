@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { Search, Activity, CheckCircle, Clock, XCircle, Server, User, Hash, Calendar, Zap, TrendingUp, AlertTriangle } from "lucide-react";
 
 interface DeploymentTask {
   taskId: string;
@@ -112,24 +112,28 @@ export default function DeploymentStatus() {
       case "SUCCEED":
         return (
           <Badge className="bg-green-100 text-green-700 border-green-200">
+            <CheckCircle className="w-3 h-3 mr-1" />
             成功
           </Badge>
         );
       case "RUNNING":
         return (
           <Badge className="bg-blue-100 text-blue-700 border-blue-200">
+            <Clock className="w-3 h-3 mr-1" />
             執行中
           </Badge>
         );
       case "FAILED":
         return (
           <Badge className="bg-red-100 text-red-700 border-red-200">
+            <XCircle className="w-3 h-3 mr-1" />
             失敗
           </Badge>
         );
       default:
         return (
           <Badge className="bg-gray-100 text-gray-700 border-gray-200">
+            <AlertTriangle className="w-3 h-3 mr-1" />
             未知
           </Badge>
         );
@@ -156,30 +160,34 @@ export default function DeploymentStatus() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* 搜尋區域 */}
-      <Card className="bg-white border border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-gray-900 flex items-center space-x-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <span>軟體派送狀態查詢</span>
+      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 shadow-md">
+        <CardHeader className="border-b border-blue-100">
+          <CardTitle className="text-blue-900 flex items-center space-x-3">
+            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <Search className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <span className="text-lg">軟體派送狀態查詢</span>
+              <p className="text-sm text-blue-600 font-normal mt-1">輸入軟體 ID 查看詳細派送記錄</p>
+            </div>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
+            <div className="flex-1 relative">
+              <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 placeholder="請輸入軟體 ID (例如: sw-001)"
                 value={appId}
                 onChange={(e) => setAppId(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="bg-white border-gray-300"
+                className="pl-10 bg-white border-blue-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <Button 
               onClick={() => handleSearch()}
               disabled={isLoading}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
             >
               {isLoading ? (
                 <div className="flex items-center space-x-2">
@@ -188,9 +196,7 @@ export default function DeploymentStatus() {
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+                  <Search className="w-4 h-4" />
                   <span>查詢</span>
                 </div>
               )}
@@ -202,38 +208,50 @@ export default function DeploymentStatus() {
       {/* 統計數據 */}
       {hasSearched && deploymentData.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-white border border-gray-200">
-            <CardContent className="p-4">
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-all duration-200">
+            <CardContent className="p-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{deploymentData.length}</div>
-                <div className="text-sm text-gray-600">總任務數</div>
+                <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-3xl font-bold text-purple-800">{deploymentData.length}</div>
+                <div className="text-sm text-purple-600">總任務數</div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-white border border-gray-200">
-            <CardContent className="p-4">
+          <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-green-200 hover:shadow-lg transition-all duration-200">
+            <CardContent className="p-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{successCount}</div>
-                <div className="text-sm text-gray-600">成功</div>
+                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                  <CheckCircle className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-3xl font-bold text-green-800">{successCount}</div>
+                <div className="text-sm text-green-600">成功</div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-white border border-gray-200">
-            <CardContent className="p-4">
+          <Card className="bg-gradient-to-br from-blue-50 to-sky-100 border-blue-200 hover:shadow-lg transition-all duration-200">
+            <CardContent className="p-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{runningCount}</div>
-                <div className="text-sm text-gray-600">執行中</div>
+                <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                  <Clock className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-3xl font-bold text-blue-800">{runningCount}</div>
+                <div className="text-sm text-blue-600">執行中</div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-white border border-gray-200">
-            <CardContent className="p-4">
+          <Card className="bg-gradient-to-br from-red-50 to-rose-100 border-red-200 hover:shadow-lg transition-all duration-200">
+            <CardContent className="p-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{failedCount}</div>
-                <div className="text-sm text-gray-600">失敗</div>
+                <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                  <XCircle className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-3xl font-bold text-red-800">{failedCount}</div>
+                <div className="text-sm text-red-600">失敗</div>
               </div>
             </CardContent>
           </Card>
@@ -242,39 +260,54 @@ export default function DeploymentStatus() {
 
       {/* 部署結果 */}
       {hasSearched && (
-        <Card className="bg-white border border-gray-200">
-          <CardHeader>
-            <CardTitle className="text-gray-900">
-              {deploymentData.length > 0 ? `軟體 "${appId}" 的派送記錄` : "查詢結果"}
+        <Card className="bg-white border border-gray-200 shadow-sm">
+          <CardHeader className="border-b border-gray-100">
+            <CardTitle className="text-gray-900 flex items-center space-x-2">
+              <Activity className="w-5 h-5 text-indigo-600" />
+              <span>
+                {deploymentData.length > 0 ? `軟體 "${appId}" 的派送記錄` : "查詢結果"}
+              </span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             {deploymentData.length > 0 ? (
               <div className="space-y-4">
                 {deploymentData.map((task, index) => (
-                  <Card key={task.taskId} className="bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-all duration-200">
-                    <CardContent className="p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Card key={task.taskId} className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all duration-200">
+                    <CardContent className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div className="space-y-2">
-                          <div className="text-sm text-gray-600">任務 ID</div>
-                          <div className="font-mono text-sm text-gray-900 bg-white px-2 py-1 rounded border">
+                          <div className="text-sm text-gray-600 flex items-center space-x-1">
+                            <Hash className="w-4 h-4 text-purple-500" />
+                            <span>任務 ID</span>
+                          </div>
+                          <div className="font-mono text-sm text-gray-900 bg-purple-50 px-3 py-2 rounded-lg border border-purple-200">
                             {task.taskId}
                           </div>
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="text-sm text-gray-600">主機名稱</div>
-                          <div className="text-sm text-gray-900">{task.hostname}</div>
+                          <div className="text-sm text-gray-600 flex items-center space-x-1">
+                            <Server className="w-4 h-4 text-blue-500" />
+                            <span>主機名稱</span>
+                          </div>
+                          <div className="text-sm text-blue-700 font-medium">{task.hostname}</div>
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="text-sm text-gray-600">擁有者</div>
-                          <div className="text-sm text-gray-900">{task.owner}</div>
+                          <div className="text-sm text-gray-600 flex items-center space-x-1">
+                            <User className="w-4 h-4 text-green-500" />
+                            <span>擁有者</span>
+                          </div>
+                          <div className="text-sm text-green-700 font-medium">{task.owner}</div>
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="text-sm text-gray-600">動作</div>
-                          <div className="text-sm text-gray-900">{getActionDisplay(task.action)}</div>
+                          <div className="text-sm text-gray-600 flex items-center space-x-1">
+                            <Zap className="w-4 h-4 text-orange-500" />
+                            <span>動作</span>
+                          </div>
+                          <div className="text-sm text-orange-700 font-medium">{getActionDisplay(task.action)}</div>
                         </div>
                         
                         <div className="space-y-2">
@@ -283,8 +316,11 @@ export default function DeploymentStatus() {
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="text-sm text-gray-600">更新時間</div>
-                          <div className="text-sm text-gray-900">{task.updateDate}</div>
+                          <div className="text-sm text-gray-600 flex items-center space-x-1">
+                            <Calendar className="w-4 h-4 text-indigo-500" />
+                            <span>更新時間</span>
+                          </div>
+                          <div className="text-sm text-indigo-700 font-medium">{task.updateDate}</div>
                         </div>
                       </div>
                     </CardContent>
@@ -293,12 +329,10 @@ export default function DeploymentStatus() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
+                <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-10 h-10 text-gray-400" />
                 </div>
-                <p className="text-gray-500 mb-2">沒有找到派送記錄</p>
+                <p className="text-gray-500 text-lg font-medium mb-2">沒有找到派送記錄</p>
                 <p className="text-sm text-gray-400">請檢查軟體 ID 是否正確，或者該軟體尚未進行派送操作</p>
               </div>
             )}
