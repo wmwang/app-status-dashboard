@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,7 +83,7 @@ export default function SoftwareList() {
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-blue-700">總計軟體</CardTitle>
-            <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
               <Package className="w-5 h-5 text-white" />
             </div>
           </CardHeader>
@@ -95,7 +96,7 @@ export default function SoftwareList() {
         <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-green-200 hover:shadow-lg transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-green-700">已上架</CardTitle>
-            <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center shadow-md">
               <CheckCircle className="w-5 h-5 text-white" />
             </div>
           </CardHeader>
@@ -108,7 +109,7 @@ export default function SoftwareList() {
         <Card className="bg-gradient-to-br from-red-50 to-rose-100 border-red-200 hover:shadow-lg transition-all duration-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-red-700">未上架</CardTitle>
-            <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-md">
               <XCircle className="w-5 h-5 text-white" />
             </div>
           </CardHeader>
@@ -123,7 +124,7 @@ export default function SoftwareList() {
       <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
         <CardHeader className="border-b border-gray-100">
           <CardTitle className="text-gray-900 flex items-center space-x-2">
-            <Filter className="w-5 h-5 text-purple-600" />
+            <Filter className="w-5 h-5 text-blue-600" />
             <span>軟體管理</span>
           </CardTitle>
         </CardHeader>
@@ -139,7 +140,7 @@ export default function SoftwareList() {
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-300 focus:border-purple-500 focus:ring-purple-500">
+              <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                 <SelectValue placeholder="狀態過濾" />
               </SelectTrigger>
               <SelectContent className="bg-white border-gray-200">
@@ -178,23 +179,23 @@ export default function SoftwareList() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="text-sm text-gray-600 flex items-center space-x-2">
-                    <Hash className="w-4 h-4 text-purple-500" />
+                    <Hash className="w-4 h-4 text-blue-500" />
                     <span className="font-medium">軟體 ID:</span> 
                     <span className="font-mono bg-gray-100 px-2 py-1 rounded text-xs">{software.appID}</span>
                   </div>
                   <div className="text-sm text-gray-600 flex items-center space-x-2">
-                    <Tag className="w-4 h-4 text-orange-500" />
+                    <Tag className="w-4 h-4 text-blue-500" />
                     <span className="font-medium">版本:</span> 
-                    <span className="text-orange-600 font-medium">{software.appversion}</span>
+                    <span className="text-blue-600 font-medium">{software.appversion}</span>
                   </div>
                   <div className="text-sm text-gray-600 flex items-center space-x-2">
-                    <User className="w-4 h-4 text-green-500" />
+                    <User className="w-4 h-4 text-blue-500" />
                     <span className="font-medium">擁有者:</span> 
-                    <span className="text-green-600">{software.owner}</span>
+                    <span className="text-blue-600">{software.owner}</span>
                   </div>
                   <Button 
                     onClick={() => handleViewDeployment(software.appID)}
-                    className="w-full mt-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
+                    className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
                     size="sm"
                   >
                     <Eye className="w-4 h-4 mr-2" />

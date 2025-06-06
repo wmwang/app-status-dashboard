@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -163,7 +164,7 @@ export default function DeploymentStatus() {
       <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 shadow-md">
         <CardHeader className="border-b border-blue-100">
           <CardTitle className="text-blue-900 flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <Search className="w-4 h-4 text-white" />
             </div>
             <div>
@@ -187,7 +188,7 @@ export default function DeploymentStatus() {
             <Button 
               onClick={() => handleSearch()}
               disabled={isLoading}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
             >
               {isLoading ? (
                 <div className="flex items-center space-x-2">
@@ -208,14 +209,14 @@ export default function DeploymentStatus() {
       {/* 統計數據 */}
       {hasSearched && deploymentData.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-all duration-200">
+          <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 hover:shadow-lg transition-all duration-200">
             <CardContent className="p-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                <div className="w-12 h-12 bg-gray-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
                   <TrendingUp className="w-6 h-6 text-white" />
                 </div>
-                <div className="text-3xl font-bold text-purple-800">{deploymentData.length}</div>
-                <div className="text-sm text-purple-600">總任務數</div>
+                <div className="text-3xl font-bold text-gray-800">{deploymentData.length}</div>
+                <div className="text-sm text-gray-600">總任務數</div>
               </div>
             </CardContent>
           </Card>
@@ -223,7 +224,7 @@ export default function DeploymentStatus() {
           <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-green-200 hover:shadow-lg transition-all duration-200">
             <CardContent className="p-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
                   <CheckCircle className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-green-800">{successCount}</div>
@@ -235,7 +236,7 @@ export default function DeploymentStatus() {
           <Card className="bg-gradient-to-br from-blue-50 to-sky-100 border-blue-200 hover:shadow-lg transition-all duration-200">
             <CardContent className="p-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
                   <Clock className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-blue-800">{runningCount}</div>
@@ -247,7 +248,7 @@ export default function DeploymentStatus() {
           <Card className="bg-gradient-to-br from-red-50 to-rose-100 border-red-200 hover:shadow-lg transition-all duration-200">
             <CardContent className="p-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
+                <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md">
                   <XCircle className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-3xl font-bold text-red-800">{failedCount}</div>
