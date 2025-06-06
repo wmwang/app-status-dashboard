@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -55,14 +56,25 @@ const mockDeploymentData: { [key: string]: DeploymentTask[] } = {
 };
 
 export default function DeploymentStatus() {
-  const [appId, setAppId] = useState("");
+  const [searchParams] = useSearchParams();
+  const [appId, setAppId] = useState(searchParams.get('appId') || "");
   const [deploymentData, setDeploymentData] = useState<DeploymentTask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const { toast } = useToast();
 
-  const handleSearch = async () => {
-    if (!appId.trim()) {
+  useEffect(() => {
+    const urlAppId = searchParams.get('appId');
+    if (urlAppId) {
+      setAppId(urlAppId);
+      handleSearch(urlAppId);
+    }
+  }, [searchParams]);
+
+  const handleSearch = async (searchAppId?: string) => {
+    const queryAppId = searchAppId || appId;
+    
+    if (!queryAppId.trim()) {
       toast({
         title: "請輸入軟體 ID",
         description: "請輸入要查詢的軟體 ID",
@@ -76,14 +88,14 @@ export default function DeploymentStatus() {
 
     // 模擬 API 調用
     setTimeout(() => {
-      const data = mockDeploymentData[appId] || [];
+      const data = mockDeploymentData[queryAppId] || [];
       setDeploymentData(data);
       setIsLoading(false);
 
       if (data.length === 0) {
         toast({
           title: "未找到數據",
-          description: `軟體 ID "${appId}" 沒有派送記錄`,
+          description: `軟體 ID "${queryAppId}" 沒有派送記錄`,
           variant: "destructive",
         });
       } else {
@@ -99,25 +111,25 @@ export default function DeploymentStatus() {
     switch (status) {
       case "SUCCEED":
         return (
-          <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+          <Badge className="bg-green-100 text-green-700 border-green-200">
             成功
           </Badge>
         );
       case "RUNNING":
         return (
-          <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+          <Badge className="bg-blue-100 text-blue-700 border-blue-200">
             執行中
           </Badge>
         );
       case "FAILED":
         return (
-          <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
+          <Badge className="bg-red-100 text-red-700 border-red-200">
             失敗
           </Badge>
         );
       default:
         return (
-          <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30">
+          <Badge className="bg-gray-100 text-gray-700 border-gray-200">
             未知
           </Badge>
         );
@@ -144,9 +156,9 @@ export default function DeploymentStatus() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* 搜尋區域 */}
-      <Card className="glass-effect">
+      <Card className="bg-white border border-gray-200">
         <CardHeader>
-          <CardTitle className="text-foreground flex items-center space-x-2">
+          <CardTitle className="text-gray-900 flex items-center space-x-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -161,13 +173,13 @@ export default function DeploymentStatus() {
                 value={appId}
                 onChange={(e) => setAppId(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="bg-muted/50 border-border"
+                className="bg-white border-gray-300"
               />
             </div>
             <Button 
-              onClick={handleSearch}
+              onClick={() => handleSearch()}
               disabled={isLoading}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isLoading ? (
                 <div className="flex items-center space-x-2">
@@ -190,38 +202,38 @@ export default function DeploymentStatus() {
       {/* 統計數據 */}
       {hasSearched && deploymentData.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="gradient-card">
+          <Card className="bg-white border border-gray-200">
             <CardContent className="p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">{deploymentData.length}</div>
-                <div className="text-sm text-muted-foreground">總任務數</div>
+                <div className="text-2xl font-bold text-gray-900">{deploymentData.length}</div>
+                <div className="text-sm text-gray-600">總任務數</div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="gradient-card">
+          <Card className="bg-white border border-gray-200">
             <CardContent className="p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-400">{successCount}</div>
-                <div className="text-sm text-muted-foreground">成功</div>
+                <div className="text-2xl font-bold text-green-600">{successCount}</div>
+                <div className="text-sm text-gray-600">成功</div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="gradient-card">
+          <Card className="bg-white border border-gray-200">
             <CardContent className="p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-400">{runningCount}</div>
-                <div className="text-sm text-muted-foreground">執行中</div>
+                <div className="text-2xl font-bold text-blue-600">{runningCount}</div>
+                <div className="text-sm text-gray-600">執行中</div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="gradient-card">
+          <Card className="bg-white border border-gray-200">
             <CardContent className="p-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-400">{failedCount}</div>
-                <div className="text-sm text-muted-foreground">失敗</div>
+                <div className="text-2xl font-bold text-red-600">{failedCount}</div>
+                <div className="text-sm text-gray-600">失敗</div>
               </div>
             </CardContent>
           </Card>
@@ -230,9 +242,9 @@ export default function DeploymentStatus() {
 
       {/* 部署結果 */}
       {hasSearched && (
-        <Card className="glass-effect">
+        <Card className="bg-white border border-gray-200">
           <CardHeader>
-            <CardTitle className="text-foreground">
+            <CardTitle className="text-gray-900">
               {deploymentData.length > 0 ? `軟體 "${appId}" 的派送記錄` : "查詢結果"}
             </CardTitle>
           </CardHeader>
@@ -240,39 +252,39 @@ export default function DeploymentStatus() {
             {deploymentData.length > 0 ? (
               <div className="space-y-4">
                 {deploymentData.map((task, index) => (
-                  <Card key={task.taskId} className="bg-card/30 border-border hover:bg-card/50 transition-all duration-200">
+                  <Card key={task.taskId} className="bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-all duration-200">
                     <CardContent className="p-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground">任務 ID</div>
-                          <div className="font-mono text-sm text-foreground bg-muted/50 px-2 py-1 rounded">
+                          <div className="text-sm text-gray-600">任務 ID</div>
+                          <div className="font-mono text-sm text-gray-900 bg-white px-2 py-1 rounded border">
                             {task.taskId}
                           </div>
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground">主機名稱</div>
-                          <div className="text-sm text-foreground">{task.hostname}</div>
+                          <div className="text-sm text-gray-600">主機名稱</div>
+                          <div className="text-sm text-gray-900">{task.hostname}</div>
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground">擁有者</div>
-                          <div className="text-sm text-foreground">{task.owner}</div>
+                          <div className="text-sm text-gray-600">擁有者</div>
+                          <div className="text-sm text-gray-900">{task.owner}</div>
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground">動作</div>
-                          <div className="text-sm text-foreground">{getActionDisplay(task.action)}</div>
+                          <div className="text-sm text-gray-600">動作</div>
+                          <div className="text-sm text-gray-900">{getActionDisplay(task.action)}</div>
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground">狀態</div>
+                          <div className="text-sm text-gray-600">狀態</div>
                           <div>{getStatusBadge(task.taskStatus)}</div>
                         </div>
                         
                         <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground">更新時間</div>
-                          <div className="text-sm text-foreground">{task.updateDate}</div>
+                          <div className="text-sm text-gray-600">更新時間</div>
+                          <div className="text-sm text-gray-900">{task.updateDate}</div>
                         </div>
                       </div>
                     </CardContent>
@@ -281,13 +293,13 @@ export default function DeploymentStatus() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <p className="text-muted-foreground mb-2">沒有找到派送記錄</p>
-                <p className="text-sm text-muted-foreground">請檢查軟體 ID 是否正確，或者該軟體尚未進行派送操作</p>
+                <p className="text-gray-500 mb-2">沒有找到派送記錄</p>
+                <p className="text-sm text-gray-400">請檢查軟體 ID 是否正確，或者該軟體尚未進行派送操作</p>
               </div>
             )}
           </CardContent>

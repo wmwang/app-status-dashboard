@@ -1,9 +1,11 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface Software {
   appID: string;
@@ -55,6 +57,7 @@ export default function SoftwareList() {
   const [softwares, setSoftwares] = useState<Software[]>(mockSoftwares);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const navigate = useNavigate();
 
   const filteredSoftwares = softwares.filter(software => {
     const matchesSearch = software.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -68,57 +71,61 @@ export default function SoftwareList() {
   const activeSoftwares = softwares.filter(s => s.status === "Y").length;
   const inactiveSoftwares = softwares.filter(s => s.status === "N").length;
 
+  const handleViewDeployment = (appID: string) => {
+    navigate(`/deployment-status?appId=${appID}`);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* 統計卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="gradient-card">
+        <Card className="bg-white border border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">總計軟體</CardTitle>
-            <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <CardTitle className="text-sm font-medium text-gray-600">總計軟體</CardTitle>
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">{totalSoftwares}</div>
+            <div className="text-2xl font-bold text-gray-900">{totalSoftwares}</div>
           </CardContent>
         </Card>
 
-        <Card className="gradient-card">
+        <Card className="bg-white border border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">已上架</CardTitle>
-            <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <CardTitle className="text-sm font-medium text-gray-600">已上架</CardTitle>
+            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-400">{activeSoftwares}</div>
+            <div className="text-2xl font-bold text-green-600">{activeSoftwares}</div>
           </CardContent>
         </Card>
 
-        <Card className="gradient-card">
+        <Card className="bg-white border border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">未上架</CardTitle>
-            <div className="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <CardTitle className="text-sm font-medium text-gray-600">未上架</CardTitle>
+            <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-400">{inactiveSoftwares}</div>
+            <div className="text-2xl font-bold text-red-600">{inactiveSoftwares}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* 搜尋和過濾 */}
-      <Card className="glass-effect">
+      <Card className="bg-white border border-gray-200">
         <CardHeader>
-          <CardTitle className="text-foreground">軟體管理</CardTitle>
+          <CardTitle className="text-gray-900">軟體管理</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -127,14 +134,14 @@ export default function SoftwareList() {
                 placeholder="搜尋軟體名稱、ID 或擁有者..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-muted/50 border-border"
+                className="bg-white border-gray-300"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[180px] bg-muted/50 border-border">
+              <SelectTrigger className="w-full sm:w-[180px] bg-white border-gray-300">
                 <SelectValue placeholder="狀態過濾" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
+              <SelectContent className="bg-white border-gray-200">
                 <SelectItem value="all">全部狀態</SelectItem>
                 <SelectItem value="Y">已上架</SelectItem>
                 <SelectItem value="N">未上架</SelectItem>
@@ -145,26 +152,33 @@ export default function SoftwareList() {
           {/* 軟體列表 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredSoftwares.map((software) => (
-              <Card key={software.appID} className="bg-card/50 border-border hover:bg-card/70 transition-all duration-200 hover:scale-105">
+              <Card key={software.appID} className="bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-all duration-200">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-semibold text-foreground">{software.name}</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-gray-900">{software.name}</CardTitle>
                     <Badge variant={software.status === "Y" ? "default" : "secondary"} 
-                           className={software.status === "Y" ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-red-500/20 text-red-400 border-red-500/30"}>
+                           className={software.status === "Y" ? "bg-green-100 text-green-700 border-green-200" : "bg-red-100 text-red-700 border-red-200"}>
                       {software.status === "Y" ? "已上架" : "未上架"}
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="text-sm text-muted-foreground">
+                <CardContent className="space-y-3">
+                  <div className="text-sm text-gray-600">
                     <span className="font-medium">軟體 ID:</span> {software.appID}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-gray-600">
                     <span className="font-medium">版本:</span> {software.appversion}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-gray-600">
                     <span className="font-medium">擁有者:</span> {software.owner}
                   </div>
+                  <Button 
+                    onClick={() => handleViewDeployment(software.appID)}
+                    className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                  >
+                    查看派送狀態
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -172,12 +186,12 @@ export default function SoftwareList() {
 
           {filteredSoftwares.length === 0 && (
             <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <p className="text-muted-foreground">沒有找到符合條件的軟體</p>
+              <p className="text-gray-500">沒有找到符合條件的軟體</p>
             </div>
           )}
         </CardContent>
