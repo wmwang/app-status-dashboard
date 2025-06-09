@@ -28,23 +28,14 @@ export function ChartsSection({ filteredData }: ChartsSectionProps) {
     }
   ].filter(item => item.value && item.value > 0);
 
-  const actionChartData: ChartData[] = [
-    {
-      name: "安裝",
-      count: filteredData.filter(task => task.action === "install").length,
-      fill: "#6366f1"
-    },
-    {
-      name: "更新", 
-      count: filteredData.filter(task => task.action === "update").length,
-      fill: "#f59e0b"
-    },
-    {
-      name: "卸載",
-      count: filteredData.filter(task => task.action === "uninstall").length,
-      fill: "#ef4444"
-    }
-  ].filter(item => item.count && item.count > 0);
+  // 改為按任務ID統計
+  const taskIdChartData = filteredData.slice(0, 8).map((task, index) => ({
+    name: task.taskId,
+    count: 1,
+    fill: `hsl(${(index * 45) % 360}, 65%, 55%)`,
+    status: task.taskStatus,
+    action: task.action
+  }));
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -93,7 +84,7 @@ export function ChartsSection({ filteredData }: ChartsSectionProps) {
         </CardContent>
       </Card>
 
-      {/* 動作類型柱狀圖 */}
+      {/* 任務ID統計柱狀圖 */}
       <Card className="bg-gradient-to-br from-violet-50 to-purple-50 border-violet-200 shadow-md">
         <CardHeader className="border-b border-violet-100">
           <CardTitle className="text-violet-900 flex items-center space-x-3">
@@ -101,35 +92,33 @@ export function ChartsSection({ filteredData }: ChartsSectionProps) {
               <BarChart3 className="w-4 h-4 text-white" />
             </div>
             <div>
-              <span className="text-lg">動作類型統計</span>
-              <p className="text-sm text-violet-600 font-normal mt-1">各類型操作數量統計</p>
+              <span className="text-lg">任務ID統計</span>
+              <p className="text-sm text-violet-600 font-normal mt-1">各任務的詳細信息（顯示前8個）</p>
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={actionChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <BarChart data={taskIdChartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
                 <defs>
-                  <linearGradient id="installGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0.3}/>
-                  </linearGradient>
-                  <linearGradient id="updateGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.3}/>
-                  </linearGradient>
-                  <linearGradient id="uninstallGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0.3}/>
-                  </linearGradient>
+                  {taskIdChartData.map((task, index) => (
+                    <linearGradient key={`gradient-${index}`} id={`taskGradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={task.fill} stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor={task.fill} stopOpacity={0.3}/>
+                    </linearGradient>
+                  ))}
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.6} />
                 <XAxis 
                   dataKey="name" 
-                  tick={{ fontSize: 14, fill: '#6b7280' }}
+                  tick={{ fontSize: 10, fill: '#6b7280' }}
                   tickLine={false}
                   axisLine={{ stroke: '#d1d5db', strokeWidth: 1 }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                  interval={0}
                 />
                 <YAxis 
                   tick={{ fontSize: 12, fill: '#6b7280' }}
@@ -139,26 +128,24 @@ export function ChartsSection({ filteredData }: ChartsSectionProps) {
                 <ChartTooltip 
                   content={<ChartTooltipContent />}
                   cursor={{ fill: 'rgba(147, 51, 234, 0.1)' }}
-                  formatter={(value, name) => [value, `${name}任務`]}
+                  formatter={(value, name, props) => [
+                    `狀態: ${props.payload.status}`, 
+                    `動作: ${props.payload.action}`
+                  ]}
+                  labelFormatter={(label) => `任務ID: ${label}`}
                 />
                 <Bar 
                   dataKey="count" 
                   radius={[8, 8, 0, 0]}
                   strokeWidth={2}
                 >
-                  {actionChartData.map((entry, index) => {
-                    let gradientId = "installGradient";
-                    if (entry.name === "更新") gradientId = "updateGradient";
-                    if (entry.name === "卸載") gradientId = "uninstallGradient";
-                    
-                    return (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={`url(#${gradientId})`}
-                        stroke={entry.fill}
-                      />
-                    );
-                  })}
+                  {taskIdChartData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={`url(#taskGradient-${index})`}
+                      stroke={entry.fill}
+                    />
+                  ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
