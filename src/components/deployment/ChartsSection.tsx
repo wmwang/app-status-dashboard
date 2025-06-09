@@ -28,14 +28,20 @@ export function ChartsSection({ filteredData }: ChartsSectionProps) {
     }
   ].filter(item => item.value && item.value > 0);
 
-  // 改為按任務ID統計
-  const taskIdChartData = filteredData.slice(0, 8).map((task, index) => ({
-    name: task.taskId,
-    count: 1,
-    fill: `hsl(${(index * 45) % 360}, 65%, 55%)`,
-    status: task.taskStatus,
-    action: task.action
-  }));
+  // 統計各個任務ID的出現次數
+  const taskIdCounts = filteredData.reduce((acc, task) => {
+    acc[task.taskId] = (acc[task.taskId] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const taskIdChartData = Object.entries(taskIdCounts)
+    .map(([taskId, count], index) => ({
+      name: taskId,
+      count: count,
+      fill: `hsl(${(index * 45) % 360}, 65%, 55%)`
+    }))
+    .sort((a, b) => b.count - a.count) // 按數量降序排列
+    .slice(0, 10); // 顯示前10個
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -84,7 +90,7 @@ export function ChartsSection({ filteredData }: ChartsSectionProps) {
         </CardContent>
       </Card>
 
-      {/* 任務ID統計柱狀圖 */}
+      {/* 任務ID數量統計柱狀圖 */}
       <Card className="bg-gradient-to-br from-violet-50 to-purple-50 border-violet-200 shadow-md">
         <CardHeader className="border-b border-violet-100">
           <CardTitle className="text-violet-900 flex items-center space-x-3">
@@ -92,8 +98,8 @@ export function ChartsSection({ filteredData }: ChartsSectionProps) {
               <BarChart3 className="w-4 h-4 text-white" />
             </div>
             <div>
-              <span className="text-lg">任務ID統計</span>
-              <p className="text-sm text-violet-600 font-normal mt-1">各任務的詳細信息（顯示前8個）</p>
+              <span className="text-lg">任務ID數量統計</span>
+              <p className="text-sm text-violet-600 font-normal mt-1">各任務ID的出現次數（顯示前10個）</p>
             </div>
           </CardTitle>
         </CardHeader>
@@ -128,10 +134,7 @@ export function ChartsSection({ filteredData }: ChartsSectionProps) {
                 <ChartTooltip 
                   content={<ChartTooltipContent />}
                   cursor={{ fill: 'rgba(147, 51, 234, 0.1)' }}
-                  formatter={(value, name, props) => [
-                    `狀態: ${props.payload.status}`, 
-                    `動作: ${props.payload.action}`
-                  ]}
+                  formatter={(value) => [`${value} 次`, '出現次數']}
                   labelFormatter={(label) => `任務ID: ${label}`}
                 />
                 <Bar 
