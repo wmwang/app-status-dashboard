@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Activity, CheckCircle, Clock, XCircle, Server, User, Hash, Calendar, Zap, TrendingUp, AlertTriangle, Filter, RefreshCw } from "lucide-react";
+import { Search, Activity, CheckCircle, Clock, XCircle, Server, User, Hash, Calendar, Zap, TrendingUp, AlertTriangle, Filter, RefreshCw, BarChart3, PieChart } from "lucide-react";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { PieChart as RechartsPieChart, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
 
 interface DeploymentTask {
   taskId: string;
@@ -43,6 +44,22 @@ const mockDeploymentData: { [key: string]: DeploymentTask[] } = {
       action: "update",
       taskStatus: "FAILED",
       updateDate: "2025-06-05 09:15:42"
+    },
+    {
+      taskId: "T004-20250604143126-001",
+      hostname: "server-04.company.com",
+      owner: "user_12345",
+      action: "install",
+      taskStatus: "SUCCEED",
+      updateDate: "2025-06-05 08:30:15"
+    },
+    {
+      taskId: "T005-20250604143126-001",
+      hostname: "server-05.company.com",
+      owner: "user_67890",
+      action: "update",
+      taskStatus: "SUCCEED",
+      updateDate: "2025-06-05 12:45:30"
     }
   ],
   "sw-002": [
@@ -55,6 +72,33 @@ const mockDeploymentData: { [key: string]: DeploymentTask[] } = {
       updateDate: "2025-06-05 14:30:18"
     }
   ]
+};
+
+const chartConfig = {
+  SUCCEED: {
+    label: "成功",
+    color: "hsl(var(--success))",
+  },
+  RUNNING: {
+    label: "執行中",
+    color: "hsl(var(--info))",
+  },
+  FAILED: {
+    label: "失敗",
+    color: "hsl(var(--destructive))",
+  },
+  install: {
+    label: "安裝",
+    color: "hsl(var(--primary))",
+  },
+  update: {
+    label: "更新",
+    color: "hsl(var(--warning))",
+  },
+  uninstall: {
+    label: "卸載",
+    color: "hsl(var(--destructive))",
+  },
 };
 
 export default function DeploymentStatus() {
@@ -189,6 +233,43 @@ export default function DeploymentStatus() {
     }
   };
 
+  // Chart data preparation
+  const statusChartData = [
+    {
+      name: "成功",
+      value: filteredData.filter(task => task.taskStatus === "SUCCEED").length,
+      fill: "#22c55e"
+    },
+    {
+      name: "執行中",
+      value: filteredData.filter(task => task.taskStatus === "RUNNING").length,
+      fill: "#3b82f6"
+    },
+    {
+      name: "失敗",
+      value: filteredData.filter(task => task.taskStatus === "FAILED").length,
+      fill: "#ef4444"
+    }
+  ].filter(item => item.value > 0);
+
+  const actionChartData = [
+    {
+      name: "安裝",
+      count: filteredData.filter(task => task.action === "install").length,
+      fill: "#3b82f6"
+    },
+    {
+      name: "更新", 
+      count: filteredData.filter(task => task.action === "update").length,
+      fill: "#f59e0b"
+    },
+    {
+      name: "卸載",
+      count: filteredData.filter(task => task.action === "uninstall").length,
+      fill: "#ef4444"
+    }
+  ].filter(item => item.count > 0);
+
   const successCount = filteredData.filter(task => task.taskStatus === "SUCCEED").length;
   const runningCount = filteredData.filter(task => task.taskStatus === "RUNNING").length;
   const failedCount = filteredData.filter(task => task.taskStatus === "FAILED").length;
@@ -318,7 +399,6 @@ export default function DeploymentStatus() {
               </div>
             </div>
             
-            {/* 篩選結果摘要 */}
             <div className="mt-4 pt-4 border-t border-purple-200">
               <p className="text-sm text-purple-600">
                 顯示 <span className="font-semibold text-purple-800">{filteredData.length}</span> / {deploymentData.length} 條記錄
@@ -376,6 +456,73 @@ export default function DeploymentStatus() {
                 <div className="text-3xl font-bold text-red-800">{failedCount}</div>
                 <div className="text-sm text-red-600">失敗</div>
               </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* 統計圖表區域 */}
+      {hasSearched && filteredData.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* 狀態分布餅圖 */}
+          <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200 shadow-md">
+            <CardHeader className="border-b border-emerald-100">
+              <CardTitle className="text-emerald-900 flex items-center space-x-3">
+                <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+                  <PieChart className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <span className="text-lg">派送狀態分布</span>
+                  <p className="text-sm text-emerald-600 font-normal mt-1">各狀態任務數量分布</p>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <ChartContainer config={chartConfig}>
+                <ResponsiveContainer width="100%" height={300}>
+                  <RechartsPieChart>
+                    <RechartsPieChart data={statusChartData} cx="50%" cy="50%" outerRadius={80} dataKey="value">
+                      {statusChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </RechartsPieChart>
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Legend />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          {/* 動作類型柱狀圖 */}
+          <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 shadow-md">
+            <CardHeader className="border-b border-orange-100">
+              <CardTitle className="text-orange-900 flex items-center space-x-3">
+                <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <span className="text-lg">動作類型統計</span>
+                  <p className="text-sm text-orange-600 font-normal mt-1">各類型操作數量統計</p>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <ChartContainer config={chartConfig}>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={actionChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                      {actionChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
